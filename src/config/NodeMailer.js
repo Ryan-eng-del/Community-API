@@ -1,25 +1,24 @@
-"use strict";
-import nodeMailer from "nodemailer"
-
+'use strict'
+import nodeMailer from 'nodemailer'
 
 export async function sendMail(userInfo) {
-    const {user, expire} = userInfo;
-    let transporter = nodeMailer.createTransport({
-        host: "smtp.qq.com",
-        port: 587,
-        secure: false,
-        auth: {
-            user: "cyan0908@qq.com",
-            pass: "szsuigiyqocodjhd", // SMTP 服务生成第三方授权码
-        },
-    });
+  const { user, expire } = userInfo
+  const transporter = nodeMailer.createTransport({
+    host: 'smtp.qq.com',
+    port: 587,
+    secure: false,
+    auth: {
+      user: 'cyan0908@qq.com',
+      pass: 'szsuigiyqocodjhd' // SMTP 服务生成第三方授权码
+    }
+  })
 
-    let info = await transporter.sendMail({
-        from: '"Fred Foo 👻" <cyan0908@qq.com>', // sender address
-        to: "cyan0908@163.com", // list of receivers
-        subject: "Hello ✔", // Subject line
-        text: "Hello world?", // plain text body
-        html: `
+  const info = await transporter.sendMail({
+    from: '"Fred Foo 👻" <cyan0908@qq.com>', // sender address
+    to: 'cyan0908@163.com', // list of receivers
+    subject: 'Hello ✔', // Subject line
+    text: 'Hello world?', // plain text body
+    html: `
          <div
       style="
         border: 1px solid #dcdcdc;
@@ -78,8 +77,7 @@ export async function sendMail(userInfo) {
       </div>
     </div>
     `
-    });
-    console.log("Message sent: %s", info.messageId);
-    console.log("Preview URL: %s", nodeMailer.getTestMessageUrl(info));
+  })
+  console.log('Message sent: %s', info.messageId)
+  console.log('Preview URL: %s', nodeMailer.getTestMessageUrl(info))
 }
-
