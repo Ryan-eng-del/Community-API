@@ -1,4 +1,5 @@
 import PostModel from '../model/PostModel'
+import LinksModel from '../model/LinksModel'
 
 class ContentController {
   /* 获取文章列表 */
@@ -36,6 +37,33 @@ class ContentController {
       code: 200,
       data: result,
       msg: '获取文章列表成功！！'
+    }
+  }
+
+  /* 获取本周热议 */
+  async getTopWeek(ctx) {
+    const result = await PostModel.getTopWeek()
+    ctx.body = {
+      code: 200,
+      data: result
+    }
+  }
+
+  /* 查询友链 */
+  async getLinks(ctx) {
+    const result = await LinksModel.find({ type: 'links' })
+    ctx.body = {
+      code: 200,
+      data: result
+    }
+  }
+
+  /* 查询温馨提醒 */
+  async getTips(ctx) {
+    const result = await LinksModel.find({ type: 'tips' })
+    ctx.body = {
+      code: 200,
+      data: result
     }
   }
 }

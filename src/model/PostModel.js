@@ -43,6 +43,16 @@ PostSchema.statics = {
         path: 'uid',
         select: 'name isVip pic'
       })
+  },
+  /* 获取本周热议 */
+  getTopWeek: async function () {
+    return await this.find({
+      created: {
+        $gte: moment().subtract(1, 'days')
+      }
+    })
+      .sort({ answer: -1 })
+      .limit(15)
   }
 }
 

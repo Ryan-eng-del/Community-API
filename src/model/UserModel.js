@@ -6,7 +6,8 @@ const Schema = mongoose.Schema
 const UserSchema = new Schema({
   username: {
     type: String,
-    required: true
+    index: { unique: true },
+    sparse: true
   },
   name: { type: String },
   password: {
@@ -37,7 +38,18 @@ UserSchema.pre('update', function (next) {
   this.updated = moment().format('YYYY-MM-DD HH:mm:ss')
   next()
 })
-
+/* schema类的静态方法 */
+UserSchema.statics = {
+  findByID: function (id) {
+    return this.findOne(
+      { _id: id },
+      {
+        /* 排除字段 */
+        password: 0
+      }
+    )
+  }
+}
 const UserModel = mongoose.model('users', UserSchema)
 
 export default UserModel
