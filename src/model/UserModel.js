@@ -1,6 +1,6 @@
 import mongoose from '../config/DBHelper'
-import md5 from 'md5'
 import moment from 'dayjs'
+import { setMd5 } from '../common/util'
 
 const Schema = mongoose.Schema
 const UserSchema = new Schema({
@@ -13,7 +13,7 @@ const UserSchema = new Schema({
   password: {
     type: String,
     required: true,
-    set: (value) => md5(value)
+    set: (value) => setMd5(value)
   },
   points: { type: Number, default: 100 },
   gender: { type: String, default: '' },

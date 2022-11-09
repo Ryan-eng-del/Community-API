@@ -1,23 +1,32 @@
-'use strict'
 import nodeMailer from 'nodemailer'
+import config from '.'
+import qs from 'qs'
 
-export async function sendMail(userInfo) {
-  const { user, expire } = userInfo
+export async function sendMail(sendInfo) {
   const transporter = nodeMailer.createTransport({
     host: 'smtp.qq.com',
     port: 587,
     secure: false,
     auth: {
       user: 'cyan0908@qq.com',
-      pass: 'szsuigiyqocodjhd' // SMTP 服务生成第三方授权码
+      pass: 'rvfhdbfwhkgsdicc' // SMTP 服务生成第三方授权码
     }
   })
 
+  const baseUrl = config.BASE_URL
+  const route = sendInfo.type === 'email' ? '/confirm' : '/reset'
+  const url = `${baseUrl}/#${route}?` + qs.stringify(sendInfo.data)
+
   const info = await transporter.sendMail({
-    from: '"Fred Foo 👻" <cyan0908@qq.com>', // sender address
-    to: 'cyan0908@163.com', // list of receivers
-    subject: 'Hello ✔', // Subject line
-    text: 'Hello world?', // plain text body
+    from: '"Community Official 👻" <cyan0908@qq.com>', // sender address
+    to: sendInfo.email, // list of receivers
+    subject: 'Hello ✔ My User ' + sendInfo.user, // Subject line
+    text:
+      sendInfo.user !== '' && sendInfo.type !== 'email'
+        ? `Community Official ${
+            sendInfo.type === 'reset' ? '重置密码链接！' : '注册码！'
+          }`
+        : '更新绑定的邮箱', // plain text body
     html: `
          <div
       style="
@@ -43,9 +52,15 @@ export async function sendMail(userInfo) {
         Welcome to the Official Community!!
       </div>
       <div style="padding: 25px; text-align: center">
-        <div>您好 ${user}，重置链接有效时间30分钟: ${expire}</div>
+        <div>您好 ${sendInfo.user}，重置链接有效时间30分钟: ${
+      sendInfo.expire
+    },之前${
+      sendInfo.code
+        ? '重置您的密码'
+        : '修改您的邮箱为：' + sendInfo.data.username
+    }</div>
         <a
-          href="https://localhost"
+          href="${url}"
           style="
             width: 100px;
             height: 50px;
@@ -57,8 +72,9 @@ export async function sendMail(userInfo) {
             display: block;
             margin: 30px auto;
           "
-          >重置密码</a
+          >${sendInfo.type === 'reset' ? '立即重置密码' : '确认设置邮箱'}</a
         >
+
       </div>
       <div
         style="
@@ -78,6 +94,6 @@ export async function sendMail(userInfo) {
     </div>
     `
   })
-  console.log('Message sent: %s', info.messageId)
-  console.log('Preview URL: %s', nodeMailer.getTestMessageUrl(info))
+
+  return `Message sent: %s, ${info.messageId}`
 }

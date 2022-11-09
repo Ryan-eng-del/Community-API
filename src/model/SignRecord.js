@@ -23,7 +23,7 @@ SignRecordSchema.pre('update', function (next) {
 SignRecordSchema.statics = {
   /* 通过用户的id，去查找签到表的记录 */
   findByUid: function (uid) {
-    return this.findOne({ uid: uid }).sort({ created: -1 })
+    return this.findOne({ uid }).sort({ created: -1 })
   }
 }
 const SignRecordModel = mongoose.model('sign_record', SignRecordSchema)

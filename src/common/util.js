@@ -1,9 +1,10 @@
 import { getValue } from '../config/RedisConfig'
 import jwt from 'jsonwebtoken'
 import config from '../config'
+import md5 from 'md5'
 
 /* 通过token 在jsonwebtoken当中去解析出用户id */
-export const getJWTPayload = (token) => {
+export const getJWTPayload = async (token) => {
   return jwt.verify(token.split(' ')[1], config.JWT_SECRET)
 }
 
@@ -38,4 +39,9 @@ export const getPoints = (count) => {
     fav = 50
   }
   return fav
+}
+
+/* md5 String  */
+export const setMd5 = (password) => {
+  return md5(String(password))
 }

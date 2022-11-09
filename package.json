@@ -34,9 +34,11 @@
     "mongoose": "^6.7.1",
     "nodemailer": "^6.8.0",
     "nodemon-webpack-plugin": "^4.8.1",
+    "qs": "^6.11.0",
     "redis": "^4.4.0",
     "svg-captcha": "^1.4.0",
     "terser-webpack-plugin": "^5.3.6",
+    "uuid": "^9.0.0",
     "webpack-merge": "^5.8.0"
   },
   "devDependencies": {

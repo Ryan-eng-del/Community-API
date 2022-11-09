@@ -4,7 +4,9 @@ import config from '../config'
 import UserModel from '../model/UserModel'
 import { sendMail } from '../config/NodeMailer'
 import { genErrorMsg } from '../common/MessageGen'
-import { checkCode } from '../common/util'
+import { checkCode, setMd5 } from '../common/util'
+import { v4 as uuIdv4 } from 'uuid'
+import { getValue, setValue } from '../config/RedisConfig'
 
 class LoginController {
   /* 登录 */
@@ -31,13 +33,9 @@ class LoginController {
       return
     }
 
-    const token = await TokenAuth.sign(
-      { _id: isExistUser._id },
-      config.JWT_SECRET,
-      {
-        expiresIn: 60 * 60
-      }
-    )
+    const token = TokenAuth.sign({ id: isExistUser._id }, config.JWT_SECRET, {
+      expiresIn: 60 * 60
+    })
     ctx.body = {
       code: 200,
       data: isExistUser || isPasswordValid,
@@ -92,23 +90,85 @@ class LoginController {
   /* 忘记密码 */
   async forget(ctx) {
     const { body } = ctx.request
+    console.log(body, 'body')
     const isRegister = await UserModel.findOne({ username: body.username })
     if (isRegister === null) {
       ctx.body = genErrorMsg(409, '请先注册账号', ctx)
       return
     }
 
-    sendMail({
-      expire: moment().add(30, 'minutes').format('YYYY-MM-DD HH:mm:ss'),
-      email: body.username,
-      user: body.username
-    }).catch(() => {
-      ctx.body = genErrorMsg(503, '发送邮件错误', ctx)
-    })
+    try {
+      const key = uuIdv4()
+      setValue(
+        key,
+        TokenAuth.sign({ _id: isRegister._id }, config.JWT_SECRET, {
+          expiresIn: '30m'
+        }),
+        30 * 60
+      )
+      // body.username -> database -> email
+      const result = await sendMail({
+        type: 'reset',
+        data: {
+          key,
+          username: body.username
+        },
+        expire: moment().add(30, 'minutes').format('YYYY-MM-DD HH:mm:ss'),
+        email: body.username,
+        user: isRegister.name ? isRegister.name : body.username
+      })
 
-    ctx.body = {
-      code: 200,
-      msg: '发送邮件成功!'
+      ctx.body = {
+        code: 200,
+        data: result,
+        msg: '邮件发送成功'
+      }
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  /* 密码重置 */
+  async reset(ctx) {
+    const { body } = ctx.request
+    const sid = body.sid
+    const code = body.code
+    const msg = {}
+    // 验证图片验证码的时效性、正确性
+    const result = await checkCode(sid, code)
+    if (!body.key) {
+      ctx.body = {
+        code: 500,
+        msg: '请求参数异常，请重新获取链接'
+      }
+      return
+    }
+    if (!result) {
+      msg.code = ['验证码已经失效，请重新获取！']
+      ctx.body = {
+        code: 500,
+        msg
+      }
+      return
+    }
+    const token = await getValue(body.key)
+    if (token) {
+      body.password = setMd5(body.password)
+      await UserModel.updateOne(
+        { _id: ctx.id },
+        {
+          password: body.password
+        }
+      )
+      ctx.body = {
+        code: 200,
+        msg: '更新用户密码成功！'
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '链接已经失效'
+      }
     }
   }
 }

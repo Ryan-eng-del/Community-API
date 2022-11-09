@@ -1,8 +1,12 @@
-import { getJWTPayload, getPoints } from '../common/util'
+import { getJWTPayload, getPoints, setMd5 } from '../common/util'
 import moment from 'dayjs'
 import UserModel from '../model/UserModel'
 import SignRecordModel from '../model/SignRecord'
-
+import { v4 as uuIdv4 } from 'uuid'
+import { getValue, setValue } from '../config/RedisConfig'
+import TokenAuth from 'jsonwebtoken'
+import config from '../config'
+import { sendMail } from '../config/NodeMailer'
 class UserController {
   /* 用户签到 */
   async userSign(ctx) {
@@ -110,6 +114,113 @@ class UserController {
       msg: '请求成功',
       ...result,
       lastSign: newRecord.created
+    }
+  }
+
+  /* 用户修改密码 */
+  async changePasswd(ctx) {
+    const { body } = ctx.request
+    const { oldPassword, newPassword } = body
+    const obj = await getJWTPayload(ctx.header.authorization)
+    await UserModel.findOne({ _id: obj.id })
+
+    if (setMd5(oldPassword) === setMd5(newPassword)) {
+      await UserModel.updateOne(
+        { _id: obj.id },
+        { $set: { password: newPassword } }
+      )
+      ctx.body = {
+        code: 200,
+        msg: '更新密码成功'
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '更新密码错误，请检查！'
+      }
+    }
+  }
+
+  /* 更新用户信息接口 */
+  async updateUserInfo(ctx) {
+    const { body } = ctx.request
+    const obj = await getJWTPayload(ctx.header.authorization)
+    // 判断用户是否修改了邮箱
+    const user = await UserModel.findOne({ _id: obj.id })
+    let msg = ''
+    if (body.username && body.username !== user.username) {
+      // 用户修改了邮箱
+      // 发送reset邮件
+      // 判断用户的新邮箱是否已经有人注册
+      const tmpUser = await UserController.findOne({ username: body.username })
+      if (tmpUser && tmpUser.password) {
+        ctx.body = {
+          code: 501,
+          msg: '邮箱已经注册'
+        }
+        return
+      }
+      const key = uuIdv4()
+
+      setValue(
+        key,
+        TokenAuth.sign({ id: obj.id }, config.JWT_SECRET, {
+          expiresIn: '30m'
+        })
+      )
+
+      await sendMail({
+        type: 'email',
+        data: {
+          key,
+          username: body.username
+        },
+        code: '',
+        expire: moment().add(30, 'minutes').format('YYYY-MM-DD HH:mm:ss'),
+        email: user.username,
+        user: user.name
+      })
+      msg = '更新基本资料成功，账号修改需要邮件确认，请查收邮件！'
+    }
+
+    /* 不可以更新的信息，这些信息需要单独的接口更新 */
+    const arr = ['username', 'mobile', 'password']
+
+    arr.map((item) => {
+      return delete body[item]
+    })
+
+    const result = await UserModel.updateOne({ _id: obj.id }, body)
+
+    if (result.acknowledged && result.matchedCount === 1) {
+      ctx.body = {
+        code: 200,
+        msg: msg === '' ? '更新成功' : msg
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '更新失败'
+      }
+    }
+  }
+
+  /* 更新用户名 */
+  async updateUsername(ctx) {
+    const body = ctx.query
+    if (body.key) {
+      const token = await getValue(body.key)
+      const obj = getJWTPayload('Bearer ' + token)
+      await UserModel.updateOne(
+        { _id: obj.id },
+        {
+          username: body.username
+        }
+      )
+      ctx.body = {
+        code: 200,
+        msg: '更新用户名成功'
+      }
     }
   }
 }
