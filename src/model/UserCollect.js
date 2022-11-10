@@ -80,6 +80,7 @@ UserCollectSchema.statics = {
         }
       })
   },
+
   // 删除用户收藏
   deleteCollect: function (_uid, _tid) {
     return this.deleteMany({ uid: _uid, tid: _tid })
@@ -87,6 +88,15 @@ UserCollectSchema.statics = {
 
   deleteByPostId: function (tid) {
     return this.deleteMany({ tid })
+  },
+
+  findByID: function (id) {
+    return this.findOne(
+      { _id: id },
+      {
+        password: 0
+      }
+    )
   }
 }
 

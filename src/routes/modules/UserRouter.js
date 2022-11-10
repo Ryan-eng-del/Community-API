@@ -9,5 +9,6 @@ router.get('/signRecord', userController.userSign)
 router.post('/changePassword', userController.changePasswd)
 router.post('/updateUser', userController.updateUserInfo)
 router.post('/updateUserName', userController.updateUsername)
+router.get('/getUserInfo', userController.getBasicInfo)
 
 export default router
