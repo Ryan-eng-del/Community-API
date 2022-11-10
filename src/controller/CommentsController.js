@@ -151,7 +151,6 @@ class CommentsController {
 
     const comment = await CommentModel.findById(params.cid)
 
-    // 新增一条点赞记录
     const newHands = new LikeModel({
       cid: params.cid, // 评论id
       huid: comment.cuid, // 被赞用户
