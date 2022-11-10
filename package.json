@@ -6,8 +6,9 @@
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack --watch --config ./config/webpack.config.dev.js",
     "build": "cross-env NODE_ENV=production webpack --config ./config/webpack.config.prod.js",
-    "build:dev": "cross-env NODE_ENV=development webpack --config ./config/webpack.config.prod.js",
-    "prettier": "npx prettier --write ."
+    "build:dev": "cross-env NODE_ENV=development webpack --config ./config/webpack.config.dev.js",
+    "prettier": "npx prettier --write .",
+    "debug": "nodemon --inspect=9229 ./dist/server.bundle.js"
   },
   "keywords": [],
   "author": "",

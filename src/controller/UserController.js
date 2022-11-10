@@ -252,7 +252,6 @@ class UserController {
       msg: '查询成功！'
     }
   }
-  
 }
 
 export default new UserController()
