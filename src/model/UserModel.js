@@ -38,6 +38,7 @@ UserSchema.pre('update', function (next) {
   this.updated = moment().format('YYYY-MM-DD HH:mm:ss')
   next()
 })
+
 /* schema类的静态方法 */
 UserSchema.statics = {
   findByID: function (id) {

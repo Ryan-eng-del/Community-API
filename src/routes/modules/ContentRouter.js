@@ -6,5 +6,4 @@ const router = new Router()
 router.prefix('/content')
 
 router.post('/add', ContentController.addPost)
-
 export default router

@@ -110,6 +110,43 @@ class ContentController {
       }
     }
   }
+
+  /* 获取文章详情 */
+  async getPostDetail(ctx) {
+    const params = ctx.query
+    if (!params.tid) {
+      ctx.body = {
+        code: 500,
+        msg: '文章id为空'
+      }
+      return
+    }
+    const post = await PostModel.findByTid(params.tid)
+    if (!post) {
+      ctx.body = {
+        code: 200,
+        data: {},
+        msg: '查询文章详情成功'
+      }
+      return
+    }
+
+    const newPost = post.toJSON()
+    // 更新文章阅读记数
+    await PostModel.updateOne({ _id: params.tid }, { $inc: { reads: 1 } })
+    if (post._id) {
+      ctx.body = {
+        code: 200,
+        data: newPost,
+        msg: '查询文章详情成功'
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '获取文章详情失败'
+      }
+    }
+  }
 }
 
 export default new ContentController()

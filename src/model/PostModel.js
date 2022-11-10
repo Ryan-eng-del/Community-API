@@ -10,6 +10,7 @@ const PostSchema = new Schema({
   fav: { type: String },
   isEnd: { type: String, default: '0' },
   reads: { type: Number, default: 0 },
+  likes: { type: Number, default: 0 },
   answer: { type: Number, default: 0 },
   status: { type: String, default: '0' },
   isTop: { type: String, default: '0' },
@@ -53,6 +54,13 @@ PostSchema.statics = {
     })
       .sort({ answer: -1 })
       .limit(15)
+  },
+  /* 根据文章详情获取发表人 */
+  findByTid: function (id) {
+    return this.findOne({ _id: id }).populate({
+      path: 'uid',
+      select: 'name pic isVip _id'
+    })
   }
 }
 
