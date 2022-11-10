@@ -1,4 +1,4 @@
-import mongoose from '../config/DBHelper'
+import mongoose from '@/config/DBHelper'
 import moment from 'dayjs'
 import { setMd5 } from '../common/util'
 

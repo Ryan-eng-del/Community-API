@@ -13,7 +13,7 @@ exports.getWebpackResolveConfig = function (customAlias = {}) {
     modules: [appPath, 'node_modules'],
     extensions: ['.js', '.json'],
     alias: {
-      src: path.resolve(__dirname, 'src/'),
+      '@': appPath,
       ...customAlias
     }
   }

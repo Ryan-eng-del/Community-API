@@ -1,12 +1,13 @@
-import { getJWTPayload, getPoints, setMd5 } from '../common/util'
+import { getJWTPayload, getPoints, setMd5 } from '@/common/util'
 import moment from 'dayjs'
-import UserModel from '../model/UserModel'
-import SignRecordModel from '../model/SignRecord'
+import UserModel from '@/model/UserModel'
+import SignRecordModel from '@/model/SignRecord'
 import { v4 as uuIdv4 } from 'uuid'
-import { getValue, setValue } from '../config/RedisConfig'
+import { getValue, setValue } from '@/config/RedisConfig'
 import TokenAuth from 'jsonwebtoken'
-import config from '../config'
-import { sendMail } from '../config/NodeMailer'
+import config from '@/config'
+import { sendMail } from '@/config/NodeMailer'
+
 class UserController {
   /* 用户签到 */
   async userSign(ctx) {

@@ -1,6 +1,6 @@
 import Router from 'koa-router'
-import PublicController from '../controller/PublicController'
-import ContentController from '../controller/ContentController'
+import PublicController from '@/controller/PublicController'
+import ContentController from '@/controller/ContentController'
 
 const router = new Router()
 

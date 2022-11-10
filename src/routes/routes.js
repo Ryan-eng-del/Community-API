@@ -1,6 +1,11 @@
 import combineRoutes from 'koa-combine-routers'
-import userRouter from './UserRouter'
-import publicRouter from './PublicRouter'
-import loginRouter from './LoginRouter'
 
-export default combineRoutes([userRouter, publicRouter, loginRouter])
+const moduleFiles = require.context('./modules', true, /\.js$/)
+
+const modules = moduleFiles.keys().reduce((items, path) => {
+  const value = moduleFiles(path, 'path')
+  items.push(value.default)
+  return items
+}, [])
+
+export default combineRoutes(modules)
