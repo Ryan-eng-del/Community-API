@@ -64,6 +64,7 @@ UserCollectSchema.statics = {
       return this.create({ uid, tid })
     }
   },
+
   // 获取用户收藏，关联post表、user表
   getCollectList: function (_uid, _skip, _limit) {
     return this.find({ uid: _uid })

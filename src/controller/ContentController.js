@@ -156,7 +156,7 @@ class ContentController {
     const isCollect = body.isCollect
     // isCollect false - 未收藏 => 转成收藏， true - 收藏了 => 删除收藏
     const result = await UserCollectModel.handleCollect(
-      obj._id,
+      obj.id,
       body.tid,
       isCollect
     )
@@ -192,6 +192,44 @@ class ContentController {
         code: 500,
         msg: '删除失败，无权限！'
       }
+    }
+  }
+
+  /* 获取发帖列表 */
+  async getPostPublic(ctx) {
+    const params = ctx.query
+    const result = await PostModel.getListByUid(
+      params.uid,
+      params.page,
+      params.limit ? parseInt(params.limit) : 10
+    )
+    const total = await PostModel.countByUid(params.uid)
+    if (result.length > 0) {
+      ctx.body = {
+        code: 200,
+        data: result,
+        total,
+        msg: '查询列表成功'
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '查询列表失败'
+      }
+    }
+  }
+
+  /* 获取收藏列表 */
+  async getCollectList(ctx) {
+    // 获取详细的用户收藏列表
+    const body = ctx.query
+    const uid = body.uid
+    const limit = parseInt(body.limit) || 10
+    const skip = ((body.currentPage || 1) - 1) * limit
+    const collectList = await UserCollectModel.getCollectList(uid, skip, limit)
+    ctx.body = {
+      code: 200,
+      collectList
     }
   }
 }
