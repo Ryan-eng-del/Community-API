@@ -55,12 +55,22 @@ PostSchema.statics = {
       .sort({ answer: -1 })
       .limit(15)
   },
+
   /* 根据文章详情获取发表人 */
   findByTid: function (id) {
     return this.findOne({ _id: id }).populate({
       path: 'uid',
       select: 'name pic isVip _id'
     })
+  },
+  getListByUid: function (id, page, limit) {
+    return this.find({ uid: id })
+      .skip(page * limit)
+      .limit(limit)
+      .sort({ created: -1 })
+  },
+  countByUid: function (id) {
+    return this.find({ uid: id }).countDocuments()
   }
 }
 

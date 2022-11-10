@@ -13,5 +13,7 @@ router.get('/getTips', ContentController.getTips)
 router.get('/getLinks', ContentController.getLinks)
 router.get('/getComments', CommentsController.getComments)
 router.get('/getDetail', ContentController.getPostDetail)
+router.get('/getUserPosts', ContentController.getPostPublic)
+router.get('/getUserComments', CommentsController.getCommentPublic)
 
 export default router

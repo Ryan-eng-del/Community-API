@@ -195,15 +195,16 @@ class ContentController {
     }
   }
 
-  /* 获取发帖列表 */
-  async getPostPublic(ctx) {
+  /* Private 获取发帖列表 */
+  async getPostByUid(ctx) {
     const params = ctx.query
+    const obj = await getJWTPayload(ctx.header.authorization)
     const result = await PostModel.getListByUid(
-      params.uid,
+      obj.id,
       params.page,
       params.limit ? parseInt(params.limit) : 10
     )
-    const total = await PostModel.countByUid(params.uid)
+    const total = await PostModel.countByUid(obj._id)
     if (result.length > 0) {
       ctx.body = {
         code: 200,
@@ -230,6 +231,30 @@ class ContentController {
     ctx.body = {
       code: 200,
       collectList
+    }
+  }
+
+  /* Public 获取用户的发帖记录 */
+  async getPostPublic(ctx) {
+    const params = ctx.query
+    const result = await PostModel.getListByUid(
+      params.uid,
+      params.page,
+      params.limit ? parseInt(params.limit) : 10
+    )
+    const total = await PostModel.countByUid(params.uid)
+    if (result.length > 0) {
+      ctx.body = {
+        code: 200,
+        data: result,
+        total,
+        msg: '查询列表成功'
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '查询列表失败'
+      }
     }
   }
 }
