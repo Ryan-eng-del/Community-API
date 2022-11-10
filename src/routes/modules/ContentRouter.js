@@ -7,4 +7,5 @@ router.prefix('/content')
 
 router.post('/add', ContentController.addPost)
 router.post('/collect', ContentController.setCollect)
+router.get('/delete', ContentController.deletePostByUid)
 export default router

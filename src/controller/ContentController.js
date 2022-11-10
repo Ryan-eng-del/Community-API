@@ -167,6 +167,33 @@ class ContentController {
       msg: isCollect ? '已取消收藏！' : '收藏成功！'
     }
   }
+
+  /* 删除发帖记录 */
+  async deletePostByUid(ctx) {
+    const params = ctx.query
+    const obj = await getJWTPayload(ctx.header.authorization)
+    const post = await PostModel.findOne({ uid: obj.id, _id: params.tid })
+    if (post.id === params.tid && post.isEnd === '0') {
+      const result = await PostModel.deleteOne({ _id: params.tid })
+      console.log(result, 'result')
+      if (result.acknowledged) {
+        ctx.body = {
+          code: 200,
+          msg: '删除成功'
+        }
+      } else {
+        ctx.body = {
+          code: 500,
+          msg: '执行删除失败！'
+        }
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '删除失败，无权限！'
+      }
+    }
+  }
 }
 
 export default new ContentController()
