@@ -2,6 +2,7 @@ import PostModel from '../model/PostModel'
 import LinksModel from '../model/LinksModel'
 import { checkCode, getJWTPayload } from '../common/util'
 import UserModel from '../model/UserModel'
+import UserCollectModel from '../model/UserCollect'
 
 class ContentController {
   /* 获取文章列表 */
@@ -145,6 +146,25 @@ class ContentController {
         code: 500,
         msg: '获取文章详情失败'
       }
+    }
+  }
+
+  /* 收藏文章 */
+  async setCollect(ctx) {
+    const { body } = ctx.request
+    const obj = await getJWTPayload(ctx.header.authorization)
+    const isCollect = body.isCollect
+    // isCollect false - 未收藏 => 转成收藏， true - 收藏了 => 删除收藏
+    const result = await UserCollectModel.handleCollect(
+      obj._id,
+      body.tid,
+      isCollect
+    )
+    ctx.body = {
+      code: 200,
+      data: result,
+      isCollect: !isCollect,
+      msg: isCollect ? '已取消收藏！' : '收藏成功！'
     }
   }
 }
